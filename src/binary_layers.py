@@ -176,6 +176,7 @@ class BinaryConv2D(Conv2D):
                 self.bias,
                 data_format=self.data_format)
 
+        # TODO: remove bk_temp return value for runtime
         if self.activation is not None:
             return self.activation(outputs), bk_temp
         return outputs
