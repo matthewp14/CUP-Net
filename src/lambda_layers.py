@@ -1,6 +1,7 @@
 # Matthew Parker
 # Engs 87/88 Honors Thesis
 # Code to test the implementation of
+# Lambda layers for CNN
 
 from __future__ import print_function
 import keras
@@ -13,7 +14,15 @@ from keras.datasets import mnist
 import cv2
 from matplotlib import pyplot as plt
 
+"""
+Streak: Simulation of streak camera. 
 
+Params: 
+    input: np.array
+    
+Output:
+    streaked np.array. new y dimension = original_y + total_images
+"""
 def streak(input):
     dims = np.shape(input)
     new_dims = streak_output_shape(input)
@@ -25,11 +34,19 @@ def streak(input):
         i+=1
     return streak_tensor
 
-
 def streak_output_shape(input):
     dims = np.shape(input)
     return (dims[0],dims[0]+dims[1],dims[2], dims[3])
 
+"""
+Integrate_ims: Simulation of CCD Imaging. Integrate along t-axis
+
+Params:
+    input: np.array
+    
+Output: 
+    integrated np.array. Single image.
+"""
 def integrate_ims(input):
     output = input[0]
     for i in range(1, np.shape(input)[0]):
