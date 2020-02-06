@@ -3,7 +3,7 @@
 # Code to test the implementation of
 # Lambda layers for CNN
 
-from __future__ import print_function
+#from __future__ import print_function
 import keras
 from keras import layers
 from keras.layers import Lambda
@@ -66,14 +66,14 @@ X_train = X_train.astype('float32')
 X_test = X_test.astype('float32')
 X_train /= 255
 X_test /= 255
-print(X_train.shape[0], 'train samples')
-print(X_test.shape[0], 'test samples')
+#print(X_train.shape[0], 'train samples')
+#print(X_test.shape[0], 'test samples')
 
 X_train = X_train[0:30]
 
 s_t = streak(X_train)
 
-print(np.shape(s_t))
+#print(np.shape(s_t))
 plt.figure(0)
 plt.imshow(np.reshape(s_t[5],(-1,28)), interpolation='nearest')
 plt.figure(1)

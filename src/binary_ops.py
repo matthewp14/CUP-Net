@@ -47,7 +47,7 @@ def binarize(W, H=1):
     - [BinaryNet: Training Deep Neural Networks with Weights and Activations Constrained to +1 or -1, Courbariaux et al. 2016](http://arxiv.org/abs/1602.02830}
     '''
     # [-H, H] -> -H or H
-    Wb = H * binary_tanh(W / H)
+    Wb = (H * binary_tanh(W / H))/2 + 0.5
     return Wb
 
 

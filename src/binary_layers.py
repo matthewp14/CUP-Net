@@ -168,7 +168,7 @@ class BinaryConv2D(Conv2D):
         
         
 #        out = Lambda(multiply)([inputs,binary_kernel])
-        bk_temp = np.reshape(K.eval(binary_kernel[:,:,:,0]), (-1,28,28,1))
+        bk_temp = np.reshape(K.eval(binary_kernel[:,:,:,0]), (-1,self.kernel_size[0],self.kernel_size[0],1))
         outputs = inputs * bk_temp
         if self.use_bias:
             outputs = K.bias_add(
