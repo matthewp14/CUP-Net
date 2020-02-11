@@ -1,6 +1,7 @@
 # CUP-Net
 ## Matthew Parker 
-## Honors Engineering Thesis Project
+## Dartmouth College
+## ENGS 88: Honors Thesis 
 ### Neural Network for CUP Imaging
 
 Based on:

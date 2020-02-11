@@ -53,7 +53,7 @@ def integrate_ims(input):
         output+= input[i]
     return output
 
-def integrate_ims_shape(input):
+def integrate_ims_output_shape(input):
     dims = np.shape(input)
     return (1, dims[1],dims[2],dims[3])
     
