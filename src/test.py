@@ -14,13 +14,13 @@ Gets to 98.98% test accuracy after 20 epochs using tensorflow backend
 import numpy as np
 np.random.seed(1337)  # for reproducibility
 
-import keras.backend as K
-from keras.datasets import mnist
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation, BatchNormalization, MaxPooling2D, Multiply
-from keras.layers import Flatten
-from keras.optimizers import SGD, Adam, RMSprop
-from keras.callbacks import LearningRateScheduler
+from tensorflow.keras import backend as K
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout, Activation, BatchNormalization, MaxPooling2D, Multiply
+from tensorflow.keras.layers import Flatten
+from tensorflow.keras.optimizers import SGD, Adam, RMSprop
+from tensorflow.keras.callbacks import LearningRateScheduler
 from keras.utils import np_utils
 
 from binary_ops import binary_tanh as binary_tanh_op

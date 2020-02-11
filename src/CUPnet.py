@@ -4,19 +4,21 @@
 Created on Wed Feb  5 16:05:10 2020
 
 @author: matthewparker
+
+NOTE: For now we are sticking to videos with dims: 30x30x30 (x,y,t) to limit toal parameters
 """
 
 import numpy as np
 np.random.seed(1337)  # for reproducibility
 
-import keras.backend as K
-from keras.datasets import mnist
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation, BatchNormalization, MaxPooling2D, Multiply, Lambda
-from keras.layers import Flatten, Reshape
-from keras.optimizers import SGD, Adam, RMSprop
-from keras.callbacks import LearningRateScheduler
-from keras.utils import np_utils
+import tensorflow.keras.backend as K
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout, Activation, BatchNormalization, MaxPooling2D, Multiply, Lambda
+from tensorflow.keras.layers import Flatten, Reshape
+from tensorflow.keras.optimizers import SGD, Adam, RMSprop
+from tensorflow.keras.callbacks import LearningRateScheduler
+from tensorflow.keras.utils import np_utils
 
 from binary_ops import binary_tanh as binary_tanh_op
 from binary_layers import BinaryDense, BinaryConv2D
@@ -40,7 +42,7 @@ channels = 1
 img_rows = 28
 img_cols = 28
 filters = 32
-kernel_size = (28, 28)
+kernel_size = (30, 30)
 pool_size = (2, 2)
 hidden_units = 128
 use_bias = False
@@ -70,10 +72,11 @@ def cupnet(input_shape = (30,30)):
     model.add(Lambda(streak, output_shape = streak_output_shape))
     model.add(Lambda(integrate_ims, output_shape = integrate_ims_output_shape))
     ## Flatten into vector for FCL
-    model.add(Flatten())
-    ## FCL to 
+    model.add(Flatten()) # output shape should be 1800
     
-    model.add(Dense()) ## TODO: figure out what to do here about number of parameters
-    model.add(Reshape)
+    model.add(Dense(27000)) ## TODO: figure out what to do here about number of parameters
+    model.add(Reshape((30,30,30)))
     
-
+    ## U-Net 
+    
+    model.add
