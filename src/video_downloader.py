@@ -16,6 +16,9 @@ USAGE: video_downloader.py videos.txt
 import os
 import sys
 from pytube import YouTube
+import cv2
+
+i = 0 # variable for the video file save
 
 vid_dir = "../data/videos/"
 
@@ -46,6 +49,31 @@ def download_videos(videos_file):
                 print("Success!")
             except: 
                 print("Couldn't download " + vid)
+
+
+"""
+Function to read in full length videos from download_videos and save them 
+"""
+def parse_video(video):
+    frames = 1
+    video_num = 1
+    cap = cv2.VideoCapture(video)
+    prefix = "vid_" + str(i) + "_"
+    
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    out = cv2.VideoWriter(prefix + str(video_num) + ".avi" ,fourcc, 30, (30,30))
+    
+    success, frame = cap.read()
+    
+    while success:
+        if frames == 30:
+            out = cv2.VideoWriter(prefix+str(video_num)+".avi", fourcc, 30, (30,30))
+            frames = 1
+            video_num+=1
+        resized = cv2.resize(frame, (30,30), interpolation = cv2.INTER_AREA)
+        gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
+        out.write(gray)
+        frames +=1
             
             
 if __name__ == "__main__":
