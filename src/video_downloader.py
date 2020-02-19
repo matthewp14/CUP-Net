@@ -63,7 +63,6 @@ def download_videos(videos_file):
                 print("Success!")
             except: 
                 print("Couldn't download " + vid)
-    print(vid_dictionary.keys())
     return vid_dictionary
 
 
@@ -81,7 +80,7 @@ RETURN:
 def split_all_vids(vid_dictionary):
     total_vids = calc_total_mini_vids(vid_dictionary)
     
-    video_arr = np.zeros((total_vids,30,30,30,1))
+    video_arr = np.zeros((total_vids,30,30,30))
     curr_index = 0
     
     try:
@@ -91,18 +90,19 @@ def split_all_vids(vid_dictionary):
     youtube_vids = get_files(youtube_vid_dir)
     
     for youtube_vid in youtube_vids: 
-        print(youtube_vid)
+        print("Splitting : " +str(youtube_vid))
         
         num_mini_vids = vid_dictionary[youtube_vid] // 30
         
-        final_index = curr_index + num_mini_vids
-        t_arr = parse_video(youtube_vid,num_mini_vids)
         
-        np.put(video_arr,np.arange(curr_index,final_index),t_arr)
-        print("added videos [" + str(curr_index) + ":" + str(final_index) + "] of " + str(total_vids) )
+        t_arr, num_videos = parse_video(youtube_vid,num_mini_vids)
+        final_index = curr_index + num_videos
+        
+        video_arr[curr_index:final_index] = t_arr[:num_videos]
         curr_index = final_index
 
-    
+    video_arr = np.delete(video_arr,np.s_[curr_index-1:],0) ## ADD ANOTHER 10 VIDEO BUFFER
+    print(np.shape(video_arr))
     return video_arr
 
 """
@@ -113,14 +113,14 @@ PARAMS:
         NOTE: file expects videos to be located in ../data/videos directory
     
     num_vids: integer specifying the total number of mini videos expected to be created
-        NOTE: videos must be size (30,30,30,1)
+        NOTE: videos must be size (30,30,30)
     
 RETURN: 
-    t_arr: numpy array of size (num_vids,30,30,30,1)
+    t_arr: numpy array of size (num_vids,30,30,30)
 """
 def parse_video(video,num_vids):
-    t_arr = np.zeros((num_vids, 30,30,30,1))
-    mini_vid = np.zeros((30,30,30,1))
+    t_arr = np.zeros((num_vids, 30,30,30))
+    mini_vid = np.zeros((30,30,30))
     vid_num = 0
     
     dim = (30,30)
@@ -133,22 +133,20 @@ def parse_video(video,num_vids):
         frames+=1
         image = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        np.put(mini_vid,frames-1,gray)
+        mini_vid[frames-1] = gray
         if frames == 30:
-            np.put(t_arr,vid_num,mini_vid)
-            print("Created mini_vid: " + str(vid_num + 1)+ " of " + str(num_vids))
+            t_arr[vid_num] = mini_vid
             vid_num +=1
             frames = 0
         success,frame = cap.read()
             
-    return t_arr
+    return t_arr, vid_num - 10 # return 10 videos less as safety buffer 
 
 """ 
 Stores an array of images to HDF5.
 
 PARAMS:
     images: images array, (N, 30, 30, 30, 1) to be stored
-    labels: labels array, (N, 1) to be stored
 """
 def store_many_hdf5(images):
 
@@ -206,6 +204,7 @@ if __name__ == "__main__":
        if (check_args()):
             vid_dictionary = download_videos(sys.argv[1])
             vid_arr = split_all_vids(vid_dictionary)
+            check = vid_arr[10][0]
             store_many_hdf5(vid_arr)
             
         

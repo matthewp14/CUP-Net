@@ -1,4 +1,7 @@
-**./idea/
+i**./idea/
 .idea
 __pycache__
-/data/*
+/data/videos/
+/data/hdf5
+/data/resized_vids/
+*.DS*
