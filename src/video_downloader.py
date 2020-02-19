@@ -17,10 +17,13 @@ import os
 import sys
 from pytube import YouTube
 import cv2
+import numpy as np
+import h5py
+from pathlib import Path
 
-i = 0 # variable for the video file save
-
-vid_dir = "../data/videos/"
+youtube_vid_dir = "../data/videos/"
+resized_vid_dir = "../data/resized_vids/"
+hdf5_dir = Path("../data/hdf5/")
 
 
 def check_args():
@@ -32,11 +35,18 @@ def check_args():
 
 """
 Gets videos line by line from video file. Downloads each using YouTube Streamer
+
+PARAMS:
+    videos_file: text file with urls to youtube videos
+
+RETURN: 
+    vid_dictionary: dictionary mapping video title -> total frames
 """
 def download_videos(videos_file):
+    vid_dictionary  = {}
     
     try:
-        os.mkdir(vid_dir)
+        os.mkdir(youtube_vid_dir)
     except:
         pass
     
@@ -45,37 +55,158 @@ def download_videos(videos_file):
         for vid in vids:
             print("Trying to download: "+vid)
             try:
-                YouTube(vid).streams.first().download(vid_dir)
+                yt = YouTube(vid)
+                frames = yt.length * yt.streams.first().fps
+                title = yt.streams.first().download(youtube_vid_dir)
+                titles = title.split("videos/")
+                vid_dictionary[titles[1]] = frames
                 print("Success!")
             except: 
                 print("Couldn't download " + vid)
+    print(vid_dictionary.keys())
+    return vid_dictionary
 
+
+"""
+Loop through all downloaded youtube vids and split them into smaller (30,30,30) vids
+Store everything in video_arr : numpy array for storing later
+
+PARAMS:
+    vid_dictionary: dictionary mapping video title -> frame count
+    
+RETURN:
+    video_arr: numpy array of size (total_vids,30,30,30,1)
+"""
+
+def split_all_vids(vid_dictionary):
+    total_vids = calc_total_mini_vids(vid_dictionary)
+    
+    video_arr = np.zeros((total_vids,30,30,30,1))
+    curr_index = 0
+    
+    try:
+        os.mkdir(resized_vid_dir)
+    except:
+        pass
+    youtube_vids = get_files(youtube_vid_dir)
+    
+    for youtube_vid in youtube_vids: 
+        print(youtube_vid)
+        
+        num_mini_vids = vid_dictionary[youtube_vid] // 30
+        
+        final_index = curr_index + num_mini_vids
+        t_arr = parse_video(youtube_vid,num_mini_vids)
+        
+        np.put(video_arr,np.arange(curr_index,final_index),t_arr)
+        print("added videos [" + str(curr_index) + ":" + str(final_index) + "] of " + str(total_vids) )
+        curr_index = final_index
+
+    
+    return video_arr
 
 """
 Function to read in full length videos from download_videos and save them 
+
+PARAMS:
+    video: filename for video. 
+        NOTE: file expects videos to be located in ../data/videos directory
+    
+    num_vids: integer specifying the total number of mini videos expected to be created
+        NOTE: videos must be size (30,30,30,1)
+    
+RETURN: 
+    t_arr: numpy array of size (num_vids,30,30,30,1)
 """
-def parse_video(video):
-    frames = 1
-    video_num = 1
-    cap = cv2.VideoCapture(video)
-    prefix = "vid_" + str(i) + "_"
+def parse_video(video,num_vids):
+    t_arr = np.zeros((num_vids, 30,30,30,1))
+    mini_vid = np.zeros((30,30,30,1))
+    vid_num = 0
     
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out = cv2.VideoWriter(prefix + str(video_num) + ".avi" ,fourcc, 30, (30,30))
-    
+    dim = (30,30)
+    video = "../data/videos/" + video
+
+    frames = 0
+    cap = cv2.VideoCapture(video)    
     success, frame = cap.read()
-    
     while success:
+        frames+=1
+        image = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        np.put(mini_vid,frames-1,gray)
         if frames == 30:
-            out = cv2.VideoWriter(prefix+str(video_num)+".avi", fourcc, 30, (30,30))
-            frames = 1
-            video_num+=1
-        resized = cv2.resize(frame, (30,30), interpolation = cv2.INTER_AREA)
-        gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
-        out.write(gray)
-        frames +=1
+            np.put(t_arr,vid_num,mini_vid)
+            print("Created mini_vid: " + str(vid_num + 1)+ " of " + str(num_vids))
+            vid_num +=1
+            frames = 0
+        success,frame = cap.read()
             
+    return t_arr
+
+""" 
+Stores an array of images to HDF5.
+
+PARAMS:
+    images: images array, (N, 30, 30, 30, 1) to be stored
+    labels: labels array, (N, 1) to be stored
+"""
+def store_many_hdf5(images):
+
+    num_images = len(images)
+    try:
+        os.mkdir("../data/hdf5")
+    except: 
+        pass
+
+    # Create a new HDF5 file
+    file = h5py.File(hdf5_dir / f"{num_images}_shoes.h5", "w")
+
+    # Create a dataset in the file
+    dataset = file.create_dataset(
+        "images", np.shape(images), h5py.h5t.STD_U8BE, data=images
+    )    
+    
+    file.close()
+  
+    
+"""
+Calculate the total number of mini videos after splitting down.
+Used to create numpy array later 
+
+PARAMS:
+    vid_dictionary: dictionary mapping video titles -> total frames
+    
+RETURN: 
+    total: integer of total mini videos that can be made
+"""    
+def calc_total_mini_vids(vid_dictionary):
+    frames = vid_dictionary.values()
+    total = 0
+    for frame in frames:
+        total += frame // 30
+    print("total vids = " + str(total))
+    return total 
+
+"""
+Get all files in directory
+
+PARAMS:
+    directory: path to directory
+    
+RETURN: 
+    list of files in directory
+"""    
+def get_files(directory):
+    return os.listdir(directory)
+
+
+          
             
 if __name__ == "__main__":
-        if (check_args()):
-            download_videos(sys.argv[1])
+       if (check_args()):
+            vid_dictionary = download_videos(sys.argv[1])
+            vid_arr = split_all_vids(vid_dictionary)
+            store_many_hdf5(vid_arr)
+            
+        
+            
