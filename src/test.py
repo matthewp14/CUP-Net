@@ -17,7 +17,7 @@ np.random.seed(1337)  # for reproducibility
 from tensorflow.keras import backend as K
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout, Activation, BatchNormalization, MaxPooling2D, Multiply
+from tensorflow.keras.layers import Dense, Dropout, Activation, BatchNormalization, MaxPooling2D, Multiply, TimeDistributed
 from tensorflow.keras.layers import Flatten
 from tensorflow.keras.optimizers import SGD, Adam, RMSprop
 from tensorflow.keras.callbacks import LearningRateScheduler
@@ -35,71 +35,101 @@ from lambda_layers import streak, integrate_ims
 def binary_tanh(x):
     return binary_tanh_op(x)
 
+import h5py
+from pathlib import Path
 
+hdf5_dir = Path("../data/hdf5/")
+
+def read_many_hdf5(num_images):
+    """ Reads image from HDF5.
+        Parameters:
+        ---------------
+        num_images   number of images to read
+        Returns:
+        ----------
+        images      images array, (N, 32, 32, 3) to be stored
+        labels      associated meta data, int label (N, 1)
+    """
+    images= []
+
+    # Open the HDF5 file
+    file = h5py.File(hdf5_dir / f"{num_images}_shoes.h5", "r+")
+
+    images = np.array(file["/images"]).astype("uint8")
+
+    return images
+
+ims = read_many_hdf5(88)
+ims = ims.reshape(88,30,30,30,1)
+
+print(np.shape(ims))
 H = 1.
 kernel_lr_multiplier = 'Glorot'
 
-# nn
+# # nn
 batch_size = 50
 epochs = 20
 channels = 1
-img_rows = 28
-img_cols = 28
+img_rows = 30
+img_cols = 30
 filters = 32
-kernel_size = (28, 28)
+kernel_size = (30, 30)
 pool_size = (2, 2)
 hidden_units = 128
 classes = 10
 use_bias = False
 
-# learning rate schedule
+# # learning rate schedule
 lr_start = 1e-3
 lr_end = 1e-4
 lr_decay = (lr_end / lr_start)**(1. / epochs)
 
-# BN
+# # BN
 epsilon = 1e-6
 momentum = 0.9
 
-# dropout
+# # dropout
 p1 = 0.25
 p2 = 0.5
 
-# the data, shuffled and split between train and test sets
-(X_train, y_train), (X_test, y_test) = mnist.load_data()
+# # the data, shuffled and split between train and test sets
+# (X_train, y_train), (X_test, y_test) = mnist.load_data()
 
-X_train = X_train.reshape(60000, 28, 28, 1)
-X_test = X_test.reshape(10000, 28, 28, 1)
-X_train = X_train.astype('float32')
-X_test = X_test.astype('float32')
-X_train /= 255
-X_test /= 255
-print(X_train.shape[0], 'train samples')
-print(X_test.shape[0], 'test samples')
+# X_train = X_train.reshape(60000, 28, 28, 1)
+# X_test = X_test.reshape(10000, 28, 28, 1)
+# X_train = X_train.astype('float32')
+# X_test = X_test.astype('float32')
+# X_train /= 255
+# X_test /= 255
+# print(X_train.shape[0], 'train samples')
+# print(X_test.shape[0], 'test samples')
 
-# convert class vectors to binary class matrices
-Y_train = np_utils.to_categorical(y_train, classes) * 2 - 1 # -1 or 1 for hinge loss
-Y_test = np_utils.to_categorical(y_test, classes) * 2 - 1
+# # convert class vectors to binary class matrices
+# Y_train = np_utils.to_categorical(y_train, classes) * 2 - 1 # -1 or 1 for hinge loss
+# Y_test = np_utils.to_categorical(y_test, classes) * 2 - 1
 
-X_train = X_train[0:30]
-print(np.shape(X_train))
+# X_train = X_train[0:30]
+# print(np.shape(X_train))
+
+# X_train_final = np.zeros((5,30,28,28,1))
+
 
 
 
 model = Sequential()
 
-cnn = BinaryConv2D(1, kernel_size=kernel_size, input_shape=(img_rows, img_cols,channels),
+cnn = BinaryConv2D(1, kernel_size=kernel_size, input_shape=(30,img_rows, img_cols,channels),
                        data_format='channels_last',
                        H=H, kernel_lr_multiplier=kernel_lr_multiplier,
                        padding='same', use_bias=use_bias, name='conv1')
-bk = cnn.build((30,28,28,1))
-outputs, bk_temp = cnn.call(X_train)
+bk = cnn.build((30,30,30,1))
+outputs, bk_temp = cnn.call(ims)
 
 print(np.shape(bk_temp))
 plt.figure(0)
-plt.imshow(np.reshape(X_train[0],(28,28)), interpolation='nearest')
+plt.imshow(np.reshape(ims[0][0],(30,30)),cmap='gray', interpolation='nearest')
 plt.figure(1)
-plt.imshow(np.reshape(outputs[0],(28,28)), interpolation='nearest')
+plt.imshow(np.reshape(outputs[0][0],(30,30)),cmap='gray', interpolation='nearest')
 plt.figure(2)
 plt.imshow(bk_temp[0][:,:,0], interpolation='nearest')
 

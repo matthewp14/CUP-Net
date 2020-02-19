@@ -158,6 +158,7 @@ class BinaryConv2D(Conv2D):
 
     def call(self, inputs):
         binary_kernel = binarize(self.kernel, H=self.H)
+        print(np.shape(inputs))
 #        outputs = K.conv2d(
 #            inputs,
 #            binary_kernel,
@@ -169,7 +170,9 @@ class BinaryConv2D(Conv2D):
         
 #        out = Lambda(multiply)([inputs,binary_kernel])
         bk_temp = np.reshape(K.eval(binary_kernel[:,:,:,0]), (-1,self.kernel_size[0],self.kernel_size[0],1))
-        outputs = inputs * bk_temp
+        bk_cube = np.zeros((30,30,30,1))
+        bk_cube[:] = bk_temp
+        outputs = inputs * bk_cube
         if self.use_bias:
             outputs = K.bias_add(
                 outputs,
