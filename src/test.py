@@ -125,7 +125,6 @@ cnn = BinaryConv2D(1, kernel_size=kernel_size, input_shape=(30,img_rows, img_col
 bk = cnn.build((30,30,30,1))
 outputs, bk_temp = cnn.call(ims)
 
-print(np.shape(bk_temp))
 plt.figure(0)
 plt.imshow(np.reshape(ims[0][0],(30,30)),cmap='gray', interpolation='nearest')
 plt.figure(1)
@@ -133,12 +132,12 @@ plt.imshow(np.reshape(outputs[0][0],(30,30)),cmap='gray', interpolation='nearest
 plt.figure(2)
 plt.imshow(bk_temp[0][:,:,0], interpolation='nearest')
 
-
+print("outputs:"+str(np.shape(outputs)))
 s_im = streak(outputs)
 plt.figure(3)
-plt.imshow(np.reshape(s_im[20],(-1,28)),interpolation='nearest')
+plt.imshow(np.reshape(s_im[20][1],(-1,30)),interpolation='nearest')
 
-final_im = integrate_ims(s_im)
+final_ims = integrate_ims(s_im)
 
 plt.figure(4)
-plt.imshow(np.reshape(final_im, (-1,28)),interpolation='nearest')
+plt.imshow(np.reshape(final_ims[0], (-1,30)),interpolation='nearest')

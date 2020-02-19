@@ -158,7 +158,6 @@ class BinaryConv2D(Conv2D):
 
     def call(self, inputs):
         binary_kernel = binarize(self.kernel, H=self.H)
-        print(np.shape(inputs))
 #        outputs = K.conv2d(
 #            inputs,
 #            binary_kernel,
@@ -179,7 +178,7 @@ class BinaryConv2D(Conv2D):
                 self.bias,
                 data_format=self.data_format)
 
-        # TODO: remove bk_temp return value for runtime
+        # TODO: remove bk_temp value for runtime
         if self.activation is not None:
             return self.activation(outputs), bk_temp
         return outputs
