@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-
+import tensorflow
 from tensorflow.keras import backend as K
-
 from tensorflow.keras.layers import InputSpec, Layer, Dense, Conv2D, Lambda, Multiply
 from tensorflow.keras import constraints
 from tensorflow.keras import initializers
@@ -158,29 +157,32 @@ class BinaryConv2D(Conv2D):
 
     def call(self, inputs):
         binary_kernel = binarize(self.kernel, H=self.H)
-#        outputs = K.conv2d(
-#            inputs,
-#            binary_kernel,
-#            strides=self.strides,
-#            padding=self.padding,
-#            data_format=self.data_format,
-#            dilation_rate=self.dilation_rate)
+
+        # print(type(binary_kernel))
+        # print(type(K.eval(binary_kernel)))
+        print(type(K.eval(binary_kernel)))
         
-        
-#        out = Lambda(multiply)([inputs,binary_kernel])
-        bk_temp = np.reshape(K.eval(binary_kernel[:,:,:,0]), (-1,self.kernel_size[0],self.kernel_size[0],1))
-        bk_cube = np.zeros((30,30,30,1))
-        bk_cube[:] = bk_temp
-        outputs = inputs * bk_cube
+        # bk_temp = np.reshape(K.eval(bk_temp[:,:q,:,0]), (-1,self.kernel_size[0],self.kernel_size[0],1))
+        # bk_cube = np.zeros((30,30,30,1))
+        # bk_cube[:] = bk_temp
+        #outputs = inputs * bk_cube
+        # outputs = K.conv2d(
+        # inputs,
+        # binary_kernel,
+        # strides=self.strides,
+        # padding=self.padding,
+        # data_format=self.data_format,
+        # dilation_rate=self.dilation_rate)
+
         if self.use_bias:
             outputs = K.bias_add(
                 outputs,
                 self.bias,
                 data_format=self.data_format)
 
-        # TODO: remove bk_temp value for runtime
+        
         if self.activation is not None:
-            return self.activation(outputs), bk_temp
+            return self.activation(outputs) #TODO: make sure this is not executing
         return outputs
 
     def get_config(self):
