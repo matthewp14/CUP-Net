@@ -81,12 +81,12 @@ p2 = 0.5
 #     model.add
 
 
-def unet(pretrained_weights = None,input_size = (30,30,1)):
+def unet(pretrained_weights = None,input_size = (30,30,30,1)):
     inputs = Input(input_size)
-    bin_conv1 = BinaryConv2D(1, kernel_size=(30,30), input_shape=input_size,
+    bin_conv1 = TimeDistributed(BinaryConv2D(1, kernel_size=(30,30), input_shape=input_size,
                        data_format='channels_last',
                        H=H, kernel_lr_multiplier=kernel_lr_multiplier,
-                       padding='same', use_bias=use_bias, name='bin_conv_1')(inputs)
+                       padding='same', use_bias=use_bias, name='bin_conv_1'))(inputs)
     s = Lambda(streak, output_shape = streak_output_shape)(bin_conv1)
     i = Lambda(integrate_ims, output_shape = integrate_ims_output_shape) (s)
     f = Flatten()(i)
