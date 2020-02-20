@@ -33,6 +33,14 @@ Output:
 
 #     return final_streak_tensor
 
+
+# def streak_output_shape(input):
+#     print(np.shape(input))
+#     temp_tens = K.eval(input)
+#     dims = K.shape(temp_tens)
+#     return (dims[0],dims[1],dims[1]+dims[2],dims[3], dims[4])
+
+@tf.function
 def streak(x):
     shape = list(x)
     streak_tensor = np.zeros((shape[1],shape[1]+shape[2],shape[3],shape[4]))
@@ -41,13 +49,6 @@ def streak(x):
         streak_tensor[i,i:shape[2]+i,:,:] = im
         i+=1
     return streak_tensor
-
-# def streak_output_shape(input):
-#     print(np.shape(input))
-#     temp_tens = K.eval(input)
-#     dims = K.shape(temp_tens)
-#     return (dims[0],dims[1],dims[1]+dims[2],dims[3], dims[4])
-
 
 def streak_output_shape(input_shape):
     shape = list(input_shape)
@@ -78,6 +79,7 @@ Output:
 # def integrate_ims_output_shape(input):
 #     dims = np.shape(input)
 #     return (dims[0], dims[2],dims[3],dims[4])
+
 
 def integrate_ims(x):
     return K.sum(x,axis=0)

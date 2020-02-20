@@ -157,7 +157,7 @@ def store_many_hdf5(images):
         pass
 
     # Create a new HDF5 file
-    file = h5py.File(hdf5_dir / f"{num_images}_shoes.h5", "w")
+    file = h5py.File(hdf5_dir / f"{num_images}_vids.h5", "w")
 
     # Create a dataset in the file
     dataset = file.create_dataset(
