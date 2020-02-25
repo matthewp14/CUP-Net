@@ -39,7 +39,6 @@ def read_many_hdf5(num_images):
 
 
 ims = read_many_hdf5(4048)
-ims = ims[0:1000]
 ims = np.reshape(ims, (-1,30,32,32,1))
 labels = ims
 
@@ -52,5 +51,5 @@ model.summary()
 
 
 history = model.fit(X_train, Y_train,
-          batch_size=2, epochs=10,
+          batch_size=24, epochs=500,
           verbose=2)

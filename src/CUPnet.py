@@ -35,7 +35,7 @@ H = 1.
 kernel_lr_multiplier = 'Glorot'
 
 # nn
-batch_size = 2
+batch_size = 24
 epochs = 20
 channels = 1
 img_rows = 32
