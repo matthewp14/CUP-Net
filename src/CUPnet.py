@@ -133,6 +133,8 @@ def unet(pretrained_weights = None,input_shape = data_shape,input_size = (30,32,
     return model
 
 
-unet = unet()
+
+if __name__=='__main__':    
+    unet = unet()
 
     
