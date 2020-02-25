@@ -46,7 +46,7 @@ labels = ims
 X_train, x_test, Y_train, y_test = train_test_split(ims, labels, test_size = 0.33, random_state = 42)
 
 
-model = unet()
+model = unet(batch_size = 24)
 model.summary()
 
 

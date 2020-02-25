@@ -35,7 +35,6 @@ H = 1.
 kernel_lr_multiplier = 'Glorot'
 
 # nn
-batch_size = 24
 epochs = 20
 channels = 1
 img_rows = 32
@@ -66,7 +65,7 @@ def ssim_loss(y_true,y_pred):
     return loss
 
 
-def unet(pretrained_weights = None,input_shape = data_shape,input_size = (30,32,32,1)):
+def unet(pretrained_weights = None,batch_size = 2,input_shape = data_shape,input_size = (30,32,32,1)):
     inputs = Input(shape=data_shape,batch_size=batch_size)
     bin_conv1 = TimeDistributed(BinaryConv2D(1, kernel_size=(32,32), input_shape=input_size,
                        data_format='channels_last',
