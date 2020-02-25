@@ -35,7 +35,7 @@ H = 1.
 kernel_lr_multiplier = 'Glorot'
 
 # nn
-batch_size = 50
+batch_size = 2
 epochs = 20
 channels = 1
 img_rows = 32
@@ -61,6 +61,10 @@ p2 = 0.5
 
 data_shape = tf.TensorShape([30,32,32,1])
 
+def ssim_loss(y_true,y_pred):
+    loss = tf.reduce_mean(tf.image.ssim(y_true,y_pred,1))
+    return loss
+
 
 def unet(pretrained_weights = None,input_shape = data_shape,input_size = (30,32,32,1)):
     inputs = Input(shape=data_shape,batch_size=batch_size)
@@ -68,12 +72,9 @@ def unet(pretrained_weights = None,input_shape = data_shape,input_size = (30,32,
                        data_format='channels_last',
                        H=H, kernel_lr_multiplier=kernel_lr_multiplier,
                        padding='same', use_bias=use_bias, name='bin_conv_1'))(inputs)
-    print(np.shape(bin_conv1))
     s = Lambda(streak, output_shape = streak_output_shape)(bin_conv1)
     i = Lambda(integrate_ims, output_shape = integrate_ims_output_shape) (s)
-    print(np.shape(i))
     f = Flatten()(i)
-    print(np.shape(f))
     dense1 = Dense(30720, activation = 'relu')(f)
     resh = Reshape((30,32,32,1))(dense1)
     c1 = TimeDistributed(Conv2D(16, (2, 2), activation='elu', kernel_initializer='he_normal', padding='same')) (resh)
@@ -128,7 +129,7 @@ def unet(pretrained_weights = None,input_shape = data_shape,input_size = (30,32,
 
     model = Model(inputs = [inputs], outputs = [outputs])
     
-    model.compile(optimizer = Adam(lr = 1e-4), loss = 'binary_crossentropy', metrics = ['accuracy'])
+    model.compile(optimizer = Adam(lr = 1e-4), loss = ssim_loss, metrics = ['accuracy'])
     
     return model
 

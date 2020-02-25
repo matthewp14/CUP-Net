@@ -51,5 +51,5 @@ model.summary()
 
 
 history = model.fit(X_train, Y_train,
-          batch_size=50, epochs=10,
+          batch_size=2, epochs=10,
           verbose=2)

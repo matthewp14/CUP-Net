@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-import tensorflow
+import tensorflow as tf
 from tensorflow.keras import backend as K
 from tensorflow.keras.layers import InputSpec, Layer, Dense, Conv2D, Lambda, Multiply
 from tensorflow.keras import constraints
@@ -160,13 +160,14 @@ class BinaryConv2D(Conv2D):
 
         # print(type(binary_kernel))
         # print(type(K.eval(binary_kernel)))
-        print(np.shape(binary_kernel))
         
         bk_temp = K.reshape(binary_kernel[:,:,:,0], (-1,self.kernel_size[0],self.kernel_size[0],1))
-        print(np.shape(bk_temp))
-        # bk_cube = np.zeros((30,30,30,1))
-        # bk_cube[:] = bk_temp
-        # print(bk_cube[1])
+        
+        """workaround 2: Try to reshape kernel into (64,32)"""
+        # temp = np.zeros((1,64,32,1))
+        # bk = tf.Variable(temp, trainable = True,dtype="float32" )
+        # bk[:,32:,:,:].assign(bk_temp)
+
         outputs = inputs * bk_temp
         # outputs = K.conv2d(
         # inputs,
