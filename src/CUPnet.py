@@ -120,7 +120,6 @@ def unet(pretrained_weights = None,input_shape = data_shape,input_size = (30,32,
     c8 = TimeDistributed(Conv2D(32, (2, 2), activation='elu', kernel_initializer='he_normal', padding='same')) (c8)
 
     u9 = TimeDistributed(Conv2DTranspose(16, (2, 2), strides=(2, 2), padding='same')) (c8)
-    u9 = concatenate([u9, c1], axis=3)
     c9 = TimeDistributed(Conv2D(16, (2, 2), activation='elu', kernel_initializer='he_normal', padding='same')) (u9)
     c9 = Dropout(0.1) (c9)
     c9 = TimeDistributed(Conv2D(16, (2, 2), activation='elu', kernel_initializer='he_normal', padding='same')) (c9)

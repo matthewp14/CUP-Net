@@ -162,12 +162,7 @@ class BinaryConv2D(Conv2D):
         # print(type(K.eval(binary_kernel)))
         
         bk_temp = K.reshape(binary_kernel[:,:,:,0], (-1,self.kernel_size[0],self.kernel_size[0],1))
-        
-        """workaround 2: Try to reshape kernel into (64,32)"""
-        # temp = np.zeros((1,64,32,1))
-        # bk = tf.Variable(temp, trainable = True,dtype="float32" )
-        # bk[:,32:,:,:].assign(bk_temp)
-
+    
         outputs = inputs * bk_temp
         # outputs = K.conv2d(
         # inputs,
