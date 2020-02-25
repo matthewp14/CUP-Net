@@ -32,7 +32,6 @@ def streak_output_shape(input_shape):
     shape = list(input_shape)
     assert len(shape) == 5
     shape[2] = shape[1] + shape[2]
-    print(tuple(shape))
     return tuple(shape)
 
 
