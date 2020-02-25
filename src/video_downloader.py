@@ -74,13 +74,13 @@ PARAMS:
     vid_dictionary: dictionary mapping video title -> frame count
     
 RETURN:
-    video_arr: numpy array of size (total_vids,30,30,30,1)
+    video_arr: numpy array of size (total_vids,30,32,32,1)
 """
 
 def split_all_vids(vid_dictionary):
     total_vids = calc_total_mini_vids(vid_dictionary)
     
-    video_arr = np.zeros((total_vids,30,30,30))
+    video_arr = np.zeros((total_vids,30,32,32))
     curr_index = 0
     
     try:
@@ -113,17 +113,17 @@ PARAMS:
         NOTE: file expects videos to be located in ../data/videos directory
     
     num_vids: integer specifying the total number of mini videos expected to be created
-        NOTE: videos must be size (30,30,30)
+        NOTE: videos must be size (30,32,32)
     
 RETURN: 
-    t_arr: numpy array of size (num_vids,30,30,30)
+    t_arr: numpy array of size (num_vids,30,32,32)
 """
 def parse_video(video,num_vids):
-    t_arr = np.zeros((num_vids, 30,30,30))
-    mini_vid = np.zeros((30,30,30))
+    t_arr = np.zeros((num_vids, 30,32,32))
+    mini_vid = np.zeros((30,32,32))
     vid_num = 0
     
-    dim = (30,30)
+    dim = (32,32)
     video = "../data/videos/" + video
 
     frames = 0
@@ -146,7 +146,7 @@ def parse_video(video,num_vids):
 Stores an array of images to HDF5.
 
 PARAMS:
-    images: images array, (N, 30, 30, 30, 1) to be stored
+    images: images array, (N, 30, 32, 32, 1) to be stored
 """
 def store_many_hdf5(images):
 
