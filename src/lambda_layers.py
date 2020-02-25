@@ -20,13 +20,12 @@ Output:
 @tf.function
 def streak(x):
     output_shape = streak_output_shape(np.shape(x))
-    print(output_shape)
     streak_tensor = np.zeros(output_shape)
     streak_tensor = tf.Variable(streak_tensor,trainable=False,dtype ="float32")
     for i in range(output_shape[0]):
         for j in range(output_shape[1]):
             im = x[i,j,:,:,:]
-            streak_tensor[i,j,j:output_shape[1]+j,:,:].assign(im)
+            streak_tensor[i,j,j:(output_shape[3]+j),:,:].assign(im)
     return streak_tensor
     
 def streak_output_shape(input_shape):
