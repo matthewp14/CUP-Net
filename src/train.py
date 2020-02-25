@@ -33,12 +33,13 @@ def read_many_hdf5(num_images):
     # Open the HDF5 file
     file = h5py.File(hdf5_dir / f"{num_images}_vids.h5", "r+")
 
-    images = np.array(file["/images"]).astype("uint8")
+    images = np.array(file["/images"]).astype("float32")
 
     return images
 
 
 ims = read_many_hdf5(4048)
+ims = ims[0:1000]
 ims = np.reshape(ims, (-1,30,32,32,1))
 labels = ims
 
