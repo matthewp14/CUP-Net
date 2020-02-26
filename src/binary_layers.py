@@ -2,7 +2,7 @@
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import backend as K
-from tensorflow.keras.layers import InputSpec, Layer, Dense, Conv2D, Lambda, Multiply
+from tensorflow.keras.layers import InputSpec, Layer, Dense, Conv2D, Lambda, multiply
 from tensorflow.keras import constraints
 from tensorflow.keras import initializers
 
@@ -60,7 +60,7 @@ class BinaryDense(Dense):
                                       name='kernel',
                                       regularizer=self.kernel_regularizer,
                                       constraint=self.kernel_constraint)
-
+        
         if self.use_bias:
             self.lr_multipliers = [self.kernel_lr_multiplier, self.bias_lr_multiplier]
             self.bias = self.add_weight(shape=(self.output_dim,),
@@ -116,8 +116,9 @@ class BinaryConv2D(Conv2D):
                              'should be defined. Found `None`.')
 
         input_dim = input_shape[channel_axis]
-        kernel_shape = self.kernel_size + (input_dim, self.filters)
-
+        kernel_shape = (input_dim, self.kernel_size[0], self.kernel_size[1], self.filters)
+        print(kernel_shape)
+        
         base = self.kernel_size[0] * self.kernel_size[1]
         if self.H == 'Glorot':
             nb_input = int(input_dim * base)
@@ -158,19 +159,7 @@ class BinaryConv2D(Conv2D):
     def call(self, inputs):
         binary_kernel = binarize(self.kernel, H=self.H)
 
-        # print(type(binary_kernel))
-        # print(type(K.eval(binary_kernel)))
-        
-        bk_temp = K.reshape(binary_kernel[:,:,:,0], (-1,self.kernel_size[0],self.kernel_size[0],1))
-    
-        outputs = inputs * bk_temp
-        # outputs = K.conv2d(
-        # inputs,
-        # binary_kernel,
-        # strides=self.strides,
-        # padding=self.padding,
-        # data_format=self.data_format,
-        # dilation_rate=self.dilation_rate)
+        outputs = inputs * binary_kernel
 
         if self.use_bias:
             outputs = K.bias_add(
@@ -180,8 +169,8 @@ class BinaryConv2D(Conv2D):
 
         
         if self.activation is not None:
-            return self.activation(outputs) #TODO: make sure this is not executing
-        return outputs
+            return self.activation(outputs), binary_kernel #TODO: make sure this is not executing
+        return outputs, binary_kernel
 
     def get_config(self):
         config = {'H': self.H,
