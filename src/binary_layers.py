@@ -117,7 +117,6 @@ class BinaryConv2D(Conv2D):
 
         input_dim = input_shape[channel_axis]
         kernel_shape = (input_dim, self.kernel_size[0], self.kernel_size[1], self.filters)
-        print(kernel_shape)
         
         base = self.kernel_size[0] * self.kernel_size[1]
         if self.H == 'Glorot':
@@ -169,8 +168,8 @@ class BinaryConv2D(Conv2D):
 
         
         if self.activation is not None:
-            return self.activation(outputs), binary_kernel #TODO: make sure this is not executing
-        return outputs, binary_kernel
+            return self.activation(outputs) #TODO: make sure this is not executing
+        return outputs
 
     def get_config(self):
         config = {'H': self.H,

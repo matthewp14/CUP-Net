@@ -21,7 +21,7 @@ from tensorflow.keras.layers import Dense, Dropout, Activation, BatchNormalizati
 from tensorflow.keras.layers import Flatten
 from tensorflow.keras.optimizers import SGD, Adam, RMSprop
 from tensorflow.keras.callbacks import LearningRateScheduler
-from keras.utils import np_utils
+# from keras.utils import np_utils
 
 from binary_ops import binary_tanh as binary_tanh_op
 from binary_layers import BinaryDense, BinaryConv2D
@@ -59,8 +59,9 @@ def read_many_hdf5(num_images):
 
     return images
 
-ims = read_many_hdf5(88)
-ims = ims.reshape(88,30,30,30,1)
+# ims = read_many_hdf5(88)
+# ims = ims.reshape(88,30,30,30,1)
+ims = np.zeros((30,30,30,1))
 
 print(np.shape(ims))
 H = 1.
