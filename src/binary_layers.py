@@ -9,8 +9,6 @@ from tensorflow.keras import initializers
 from binary_ops import binarize
 
 
-
-
 class Clip(constraints.Constraint):
     def __init__(self, min_value, max_value=None):
         self.min_value = min_value
@@ -157,7 +155,7 @@ class BinaryConv2D(Conv2D):
 
     def call(self, inputs):
         binary_kernel = binarize(self.kernel, H=self.H)
-
+        
         outputs = inputs * binary_kernel
 
         if self.use_bias:

@@ -3,7 +3,6 @@
 """
 Created on Wed Feb 26 17:01:56 2020
 
-@author: matthewparker
 """
 
 import numpy as np
@@ -23,7 +22,7 @@ from binary_ops import binary_tanh as binary_tanh_op
 from binary_layers import BinaryDense, BinaryConv2D
 
 import cv2
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 from lambda_layers import *
 
 
@@ -89,7 +88,8 @@ def np_streak(x):
     for i in range(output_shape[0]):
         for j in range(output_shape[1]):
             streak_tensor[i,j,j:(output_shape[3]+j),:,:] = x[i,j,:,:,:]
-    return np.sum(streak_tensor,axis=1)
+    return streak_tensor
+    # return np.sum(streak_tensor,axis=1)
 
 def mask(val,ims,mask):
     for i in range(np.shape(val)[0]):
@@ -98,10 +98,11 @@ def mask(val,ims,mask):
     return val
 
 ims = read_many_hdf5(3943)
-ims = np.ones((3943,30,32,32,1))
+# ims = np.ones((3943,30,32,32,1))
 ims = np.reshape(ims, (-1,30,32,32,1))
 ims = ims[:3900]
-temp = np.zeros((1,32,32,1))
+# temp = np.zeros((1,32,32,1))
+
 
 bk_temp = np.random.randint(0,2,(1,32,32,1))
 
@@ -111,39 +112,24 @@ validate2  = validate
 validate2 = np_streak(validate)
 
     
-""" THIIS ONE WORKS"""
-# model = Sequential()
-
-# model.add(Input(shape=(30,32,32,1),batch_size=100))
-
-# model.add(TimeDistributed(BinaryConv2D(1, kernel_size=(32,32), input_shape=(30,32,32,1),
-#                         data_format='channels_last',s
-#                         H=H, kernel_lr_multiplier=kernel_lr_multiplier,
-#                         padding='same', use_bias=use_bias, name='bin_conv_1')))
-# # model.add(Lambda(streak, output_shape = streak_output_shape))
-# # model.add(Lambda(integrate_ims, output_shape = integrate_ims_output_shape))
-# model.compile(optimizer = Adam(lr = 3), loss = 'mean_squared_error', metrics = ['accuracy'])
-# model.summary()
-# # history = model.fit(ims, validate,
-# #           batch_size=100, epochs=2,
-# #           verbose=2)
-
 
 """ THIS ONE DOES NOT """
 model2 = Sequential()
 
-model2.add(Input(shape=(30,32,32,1),batch_size=100))
+model2.add(Input(shape=(30,32,32,1),batch_size = 100))
 
 model2.add(TimeDistributed(BinaryConv2D(1, kernel_size=(32,32), input_shape=(30,32,32,1),
                         data_format='channels_last',
                         H=H, kernel_lr_multiplier=kernel_lr_multiplier,
                         padding='same', use_bias=use_bias, name='bin_conv_1')))
+# model2.add(Reshape((30,32,32)))
 model2.add(Lambda(streak, output_shape = streak_output_shape))
-model2.add(Lambda(integrate_ims, output_shape = integrate_ims_output_shape,trainable=False))
-model2.compile(optimizer = Adam(lr = 3), loss = 'mean_squared_error', metrics = ['accuracy'])
+# model2.add(Lambda(integrate_ims, output_shape = integrate_ims_output_shape,trainable=False))
+# model2.add(Reshape((30,32,32,1)))
+model2.compile(optimizer = Adam(lr = 1), loss = 'mean_squared_error', metrics = ['mse'])
 model2.summary()
 history2 = model2.fit(ims, validate2,
-          batch_size=100, epochs=5,
+          batch_size = 100,epochs= 10,
           verbose=2)
 
 
