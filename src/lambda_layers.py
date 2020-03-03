@@ -20,15 +20,31 @@ Output:
 # @tf.function
 # def streak(x):
 #     output_shape = streak_output_shape(np.shape(x))
-#     streak_tensor = np.zeros(output_shape)
-#     # streak_tensor = tf.Variable(streak_tensor,trainable=False,dtype ="float32")
-#     streak_tensor = K.variable(streak_tensor,dtype="float32")
-#     for i in range(output_shape[0]):
-#         for j in range(output_shape[1]):
-#             im = x[i,j,:,:,:]
-#             streak_tensor[i,j,j:(output_shape[3]+j),:,:].assign(im)
-#     return streak_tensor
-
+#     print(type(output_shape))
+#     # paddings = tf.constant([[0,0],[0,0],[0,output_shape[1]],[0,0],[0,0]])
+#     paddings = tf.constant([[0,0],[0,0],[0,output_shape[1]],[0,0]])
+#     x = tf.pad(x,paddings) 
+#     streak_starter = np.zeros((output_shape[1],output_shape[2],output_shape[2])) # cant have color channel for np.fill_diagonal
+#     for i in range(output_shape[1]):
+#         np.fill_diagonal(streak_starter[i,i:,:],1)
+#     # streak_starter = np.reshape(streak_starter, (output_shape[1],output_shape[2],output_shape[2],1))
+#     # streak = streak_starter
+#     streak_starter = tf.convert_to_tensor(streak_starter,dtype="float32")
+#     # x = tf.reshape(x,(np.shape(x)[:-1]))
+#     # reshape_dims = list(output_shape[:-1])
+#     # reshape_dims[0] = tf.shape(x)[0].value
+#     # reshape_dims = tf.TensorShape(tuple(reshape_dims))
+#     # x = tf.reshape(x,[-1,30,62,32])
+#     # x = tf.reshape(x,tf.constant(reshape_dims))
+#     # x = tf.reshape(x,(None,input_dims[1],input_dims[2],input_dims[3]))
+#     outputs = tf.linalg.matmul(streak_starter,x)
+#     return outputs
+    
+# def streak_output_shape(input_shape):
+#     shape = list(input_shape)
+#     assert len(shape) == 4
+#     shape[2] = shape[1] + shape[2]
+#     return tuple(shape)
 
 @tf.function
 def streak(x):
@@ -38,7 +54,7 @@ def streak(x):
     streak_starter = np.zeros((output_shape[1],output_shape[2],output_shape[2])) # cant have color channel for np.fill_diagonal
     
     for i in range(output_shape[1]):
-        np.fill_diagonal(streak_starter[i,i+1:,:],1)
+        np.fill_diagonal(streak_starter[i,i:,:],1)
     # streak_starter = np.reshape(streak_starter, (output_shape[1],output_shape[2],output_shape[2],1))
     # streak = streak_starter
     streak_starter = tf.convert_to_tensor(streak_starter,dtype="float32")
@@ -51,7 +67,6 @@ def streak_output_shape(input_shape):
     assert len(shape) == 5
     shape[2] = shape[1] + shape[2]
     return tuple(shape)
-
 
 """
 Integrate_ims: Simulation of CCD Imaging. Integrate along t-axis
