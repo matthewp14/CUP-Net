@@ -14,7 +14,7 @@ Code based on: [Binary implementation in Keras](https://github.com/DingKe/nn_pla
 
 
 ### Changes: 
-In BinaryConv2D the kernel can be though of as a binary mask. That is, the kernel is simply multiplied (element-wise mult.) on the image rather than used in the traditioinal way.
+In BinaryConv2D the kernel can be though of as a binary mask. That is, the kernel is simply multiplied (element-wise mult.) on the image rather than used in the traditional way.
 
 
 In lambda_layers.py:

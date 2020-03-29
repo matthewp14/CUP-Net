@@ -41,6 +41,7 @@ PARAMS:
 
 RETURN: 
     vid_dictionary: dictionary mapping video title -> total frames
+
 """
 def download_videos(videos_file):
     vid_dictionary  = {}
@@ -75,6 +76,14 @@ PARAMS:
     
 RETURN:
     video_arr: numpy array of size (total_vids,30,32,32,1)
+
+    NOTE: MODIFYING THIS TO SAVE EVERY 10TH FRAME RATHER THAN EVERY FRAME 
+          THE IDEA BEING THAT WE SHOW MORE FRAME-FRAME MOTION
+
+    CHANGES:
+        num_mini_vids = vid_dictionary[youtube_vid] // 30 -> num_mini_vids = vid_dictionary[youtube_vid] // 300
+        ADDED IF STATEMENT TO ONLY SAVE ON 10TH FRAMES
+
 """
 
 def split_all_vids(vid_dictionary):
@@ -92,7 +101,7 @@ def split_all_vids(vid_dictionary):
     for youtube_vid in youtube_vids: 
         print("Splitting : " +str(youtube_vid))
         
-        num_mini_vids = vid_dictionary[youtube_vid] // 30
+        num_mini_vids = vid_dictionary[youtube_vid] // 300
         
         
         t_arr, num_videos = parse_video(youtube_vid,num_mini_vids)
@@ -129,18 +138,21 @@ def parse_video(video,num_vids):
     frames = 0
     cap = cv2.VideoCapture(video)    
     success, frame = cap.read()
+    fc = -1
     while success:
-        frames+=1
+        fc += 1
         image = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        mini_vid[frames-1] = gray
+        if fc % 10 == 0:
+            mini_vid[frames-1] = gray
+            frames += 1
         if frames == 30:
             t_arr[vid_num] = mini_vid
             vid_num +=1
             frames = 0
         success,frame = cap.read()
             
-    return t_arr, vid_num - 10 # return 10 videos less as safety buffer 
+    return t_arr, vid_num - 2 # return 10 videos less as safety buffer 
 
 """ 
 Stores an array of images to HDF5.
@@ -176,12 +188,14 @@ PARAMS:
     
 RETURN: 
     total: integer of total mini videos that can be made
+
+CHANGE: // 300 rather than 30 to account for only keeping every tenth frame
 """    
 def calc_total_mini_vids(vid_dictionary):
     frames = vid_dictionary.values()
     total = 0
     for frame in frames:
-        total += frame // 30
+        total += frame // 300
     print("total vids = " + str(total))
     return total 
 

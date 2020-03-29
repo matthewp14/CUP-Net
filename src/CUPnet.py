@@ -127,7 +127,7 @@ def unet(pretrained_weights = None,batch_size = 2,input_shape = data_shape,input
 
     model = Model(inputs = [inputs], outputs = [outputs])
     
-    model.compile(optimizer = Adam(lr = 1e-4), loss = ssim_loss, metrics = ['accuracy'])
+    model.compile(optimizer = Adam(lr = 1e-4), loss = 'mean_squared_error', metrics = ['accuracy'])
     
     return model
 
