@@ -26,6 +26,7 @@ from lambda_layers import *
 import h5py
 from pathlib import Path
 
+hdf5_dir = Path("../data/hdf5")
 
 def read_many_hdf5(num_images):
     """ Reads image from HDF5.
@@ -86,6 +87,7 @@ threshold = myCallback()
 # ims2 = np_streak(validate2)
 
 #### 1515
+
 ims = read_many_hdf5(1516)
 # ims = np.ones((3943,30,32,32,1))
 ims = np.reshape(ims, (-1,30,32,32,1))
