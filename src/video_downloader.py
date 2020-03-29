@@ -140,12 +140,12 @@ def parse_video(video,num_vids):
     success, frame = cap.read()
     fc = -1
     while success:
-        frames+=1
         fc += 1
         image = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         if fc % 10 == 0:
             mini_vid[frames-1] = gray
+            frames += 1
         if frames == 30:
             t_arr[vid_num] = mini_vid
             vid_num +=1
