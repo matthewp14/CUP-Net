@@ -23,6 +23,8 @@ from binary_layers import BinaryDense, BinaryConv2D
 import cv2
 import matplotlib.pyplot as plt
 from lambda_layers import *
+import h5py
+from pathlib import Path
 
 
 def read_many_hdf5(num_images):
