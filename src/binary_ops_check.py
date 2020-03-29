@@ -110,10 +110,23 @@ validate = np.zeros((3900,30,32,32,1))
 validate = mask(validate,ims,bk_temp)
 validate2  = validate
 validate2 = np_streak(validate)
+validate3 = np.sum(validate2, axis=1)
 
-    
 
-""" THIS ONE DOES NOT """
+model1 = Sequential()
+
+model1.add(Input(shape=(30,32,32,1),batch_size = 100))
+
+model1.add(TimeDistributed(BinaryConv2D(1, kernel_size=(32,32), input_shape=(30,32,32,1),
+                        data_format='channels_last',
+                        H=H, kernel_lr_multiplier=kernel_lr_multiplier,
+                        padding='same', use_bias=use_bias, name='bin_conv_1')))
+model1.compile(optimizer = Adam(lr = 1), loss = 'mean_squared_error', metrics = ['mse'])
+model1.summary()
+history1 = model1.fit(ims, validate,
+          batch_size = 100,epochs= 5,
+          verbose=2)
+
 model2 = Sequential()
 
 model2.add(Input(shape=(30,32,32,1),batch_size = 100))
@@ -122,14 +135,29 @@ model2.add(TimeDistributed(BinaryConv2D(1, kernel_size=(32,32), input_shape=(30,
                         data_format='channels_last',
                         H=H, kernel_lr_multiplier=kernel_lr_multiplier,
                         padding='same', use_bias=use_bias, name='bin_conv_1')))
-# model2.add(Reshape((30,32,32)))
 model2.add(Lambda(streak, output_shape = streak_output_shape))
-# model2.add(Lambda(integrate_ims, output_shape = integrate_ims_output_shape,trainable=False))
-# model2.add(Reshape((30,32,32,1)))
 model2.compile(optimizer = Adam(lr = 1), loss = 'mean_squared_error', metrics = ['mse'])
 model2.summary()
 history2 = model2.fit(ims, validate2,
-          batch_size = 100,epochs= 10,
+          batch_size = 100,epochs= 5,
+          verbose=2)
+    
+
+""" THIS ONE DOES NOT """
+model3 = Sequential()
+
+model3.add(Input(shape=(30,32,32,1),batch_size = 100))
+
+model3.add(TimeDistributed(BinaryConv2D(1, kernel_size=(32,32), input_shape=(30,32,32,1),
+                        data_format='channels_last',
+                        H=H, kernel_lr_multiplier=kernel_lr_multiplier,
+                        padding='same', use_bias=use_bias, name='bin_conv_1')))
+model3.add(Lambda(streak, output_shape = streak_output_shape))
+model3.add(Lambda(integrate_ims, output_shape = integrate_ims_output_shape,trainable=False))
+model3.compile(optimizer = Adam(lr = 1), loss = 'mean_squared_error', metrics = ['mse'])
+model3.summary()
+history3 = model3.fit(ims, validate3,
+          batch_size = 100,epochs= 20,
           verbose=2)
 
 
