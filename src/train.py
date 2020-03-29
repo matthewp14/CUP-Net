@@ -14,8 +14,6 @@ import h5py
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 from CUPnet import unet
-from tensorflow.keras.optimizers import *
-tf.autograph.set_verbosity(0, True)
 
 
 hdf5_dir = Path("../data/hdf5/")
@@ -40,21 +38,18 @@ def read_many_hdf5(num_images):
     return images
 
 
-ims = read_many_hdf5(3943)
-ims = ims[0:24]
+ims = read_many_hdf5(4048)
 ims = np.reshape(ims, (-1,30,32,32,1))
 labels = ims
 
 
-
-
 X_train, x_test, Y_train, y_test = train_test_split(ims, labels, test_size = 0.33, random_state = 42)
 
-model = unet()
+
+model = unet(batch_size = 24)
 model.summary()
 
 
-
 history = model.fit(X_train, Y_train,
-          batch_size=2, epochs=10,
+          batch_size=24, epochs=500,
           verbose=2)
