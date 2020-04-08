@@ -19,6 +19,7 @@ from tensorflow.keras.datasets import mnist
 from tensorflow.keras.constraints import *
 from sklearn.model_selection import train_test_split
 # from keras.utils import np_utils
+from numba import cuda
 
 from binary_ops import binary_tanh as binary_tanh_op
 from binary_layers import BinaryDense, BinaryConv2D
@@ -209,7 +210,8 @@ for i in range(9):
 
 with open("training_logs.txt",'w') as file:
     for i in range(10):
-        file.write("[ssim,mse]: " + "["+str(alpha[i])+","+str(beta[i])+"]"+ "MSE LOSS: " + str(mse_losses[i]) + " +/- " + str(mse_sd[i]) + + " SSIM LOSS: " + str(ssim_losses[i]) + " +/- " + str(ssim_sd[i]) + "\n")
+        msg = "[ssim,mse]: " + "["+str(alpha[i])+","+str(beta[i])+"]"+ "MSE LOSS: " + str(mse_losses[i]) + " +/- " + str(mse_sd[i]) + + " SSIM LOSS: " + str(ssim_losses[i]) + " +/- " + str(ssim_sd[i]) + "\n"
+        file.write(msg)
     
     
     
