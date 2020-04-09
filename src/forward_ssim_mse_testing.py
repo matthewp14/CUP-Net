@@ -172,15 +172,12 @@ beta = [0.9,0.8,0.7,0.6,0.5,0.4,0.3,0.2,0.1]
 
 mse_losses = []
 ssim_losses = []
-mse_sd = []
-ssim_sd = []
-
-for i in range(9):
+for i in range(3,9):
     ssim_alpha = alpha[i]
     ssim_beta = beta[i]
     inner_mse_losses=[]
     inner_ssim_losses=[]
-    for j in range(1):
+    for j in range(5):
         MX_train, MX_test, My_train, My_test = train_test_split(ims,ims, test_size = 1/3)
         forward_model = Sequential()
         forward_model.add(Input(shape=(30,32,32,1),batch_size = 40))
@@ -193,25 +190,34 @@ for i in range(9):
         forward_model.add(Flatten())
         forward_model.add(Dense(30720, activation = 'relu'))
         forward_model.add(Reshape((30,32,32,1)))
-        forward_model.compile(optimizer = Nadam(0.0001), loss = variable_custom_loss, metrics = ['mean_squared_error',mse_loss,ssim_loss])
+        forward_model.compile(optimizer = Nadam(0.0001), loss = variable_custom_loss, metrics = [mse_loss,ssim_loss])
         forward_model.summary()
         forward_history = forward_model.fit(MX_train, My_train,
-              batch_size = 40,epochs= 1,
+              batch_size = 40,epochs= 200,
               verbose=2,validation_data=(MX_test,My_test),callbacks=[reduce_lr])
         evals = forward_model.evaluate(MX_test,My_test)
         inner_mse_losses.append(evals[1])
         inner_ssim_losses.append(evals[2])
+        memory = cuda.current_context().get_memory_info()
+        print('1 Memory Status:', memory[0], 'free out of', memory[1], ',', (int(memory[0])/int(memory[1])*100), '% free')
         K.clear_session()
-    mse_losses.append(np.mean(inner_mse_losses))
-    ssim_losses.append(np.mean(inner_ssim_losses))
-    mse_sd.append(np.std(inner_mse_losses))
-    ssim_sd.append(np.std(inner_ssim_losses))
+        memory = cuda.current_context().get_memory_info()
+        print('2 Memory Status:', memory[0], 'free out of', memory[1], ',', (int(memory[0])/int(memory[1])*100), '% free')
+        
+    mse_losses.append(inner_mse_losses)
+    ssim_losses.append(inner_ssim_losses)
 
-
-with open("training_logs.txt",'w') as file:
-    for i in range(10):
-        msg = "[ssim,mse]: " + "["+str(alpha[i])+","+str(beta[i])+"]"+ "MSE LOSS: " + str(mse_losses[i]) + " +/- " + str(mse_sd[i]) + + " SSIM LOSS: " + str(ssim_losses[i]) + " +/- " + str(ssim_sd[i]) + "\n"
+    with open("training_logs.txt",'a') as file:
+        #msg = "[ssim,mse]: " + "["+str(alpha[i])+","+str(beta[i])+"]"+ " MSE LOSS: " + str(mse_losses[i]) + " +/- " + str(mse_sd[i]) + " SSIM LOSS: " + str(ssim_losses[i]) + " +/- " + str(ssim_sd[i]) + "\n"
+        msg = "[ssim,mse]: " + "["+str(alpha[i])+","+str(beta[i])+"]"+ " MSE LOSS: " + str(np.mean(inner_mse_losses)) + " +/- " + str(np.std(inner_mse_losses)) + " SSIM LOSS: " + str(np.mean(inner_ssim_losses)) + " +/- " + str(np.std(inner_ssim_losses)) + "\n"
         file.write(msg)
+            
+with open("training_logs.txt",'a') as file:
+    msg = "\n ALL HISTORY: \n" + "SSIM LOSSES: " + str(ssim_losses) + "\nMSE LOSSES: " + str(mse_losses)
+    file.write(msg)
+
+
+
     
     
     
