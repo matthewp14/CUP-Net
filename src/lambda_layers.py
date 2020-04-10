@@ -20,20 +20,28 @@ Output:
 @tf.function
 def streak(x):
     output_shape = streak_output_shape(np.shape(x))
-    paddings = tf.constant([[0,0],[0,0],[0,output_shape[1]],[0,0],[0,0]])
+    paddings = tf.constant([[0,0],[0,0],[0,output_shape[1]],[0,0]])
     x = tf.pad(x,paddings) # pad each frame with zeros below the data 
     streak_starter = np.zeros((output_shape[1],output_shape[2],output_shape[2])) # cant have color channel for np.fill_diagonal
     
     for i in range(output_shape[1]):
         np.fill_diagonal(streak_starter[i,i:,:],1)
     streak_starter = tf.convert_to_tensor(streak_starter,dtype="float32")
-    x = tf.reshape(x,(np.shape(x)[:-1]))
+    #x = tf.reshape(x,(np.shape(x)[:-1]))
     outputs = tf.linalg.matmul(streak_starter,x)
-    return tf.reshape(outputs, output_shape)
+    print(np.shape(outputs))
+    #return tf.reshape(outputs, output_shape)
+    return outputs
     
+#def streak_output_shape(input_shape):
+  #  shape = list(input_shape)
+ #   assert len(shape) == 5
+   # shape[2] = shape[1] + shape[2]
+    #return tuple(shape)
+
 def streak_output_shape(input_shape):
     shape = list(input_shape)
-    assert len(shape) == 5
+    assert len(shape) == 4
     shape[2] = shape[1] + shape[2]
     return tuple(shape)
 
@@ -51,12 +59,15 @@ Output:
 def integrate_ims(x):
     return K.sum(x,axis=1)
 
+#def integrate_ims_output_shape(input_shape):
+ #   shape = list(input_shape)
+  #  assert len(shape) == 5
+   # return tuple(shape[0],shape[2],shape[3],shape[4])
+
 def integrate_ims_output_shape(input_shape):
     shape = list(input_shape)
-    assert len(shape) == 5
-    return tuple(shape[0],shape[2],shape[3],shape[4])
-
-
+    assert len(shape) == 4
+    return tuple(shape[0],shape[2],shape[3])
 
 # @tf.function
 # def streak(x):
