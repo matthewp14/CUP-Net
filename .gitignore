@@ -5,3 +5,4 @@ __pycache__
 /data/hdf5
 /data/resized_vids/
 *.DS*
+*.h5
