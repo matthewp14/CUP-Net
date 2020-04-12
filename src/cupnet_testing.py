@@ -97,8 +97,6 @@ ims = ims /255
 
 MX_train, MX_test, My_train, My_test = train_test_split(ims,ims, test_size = 1/3, random_state = 42)
 
-print(np.shape(X_test))
-print(np.shape(X_train))
 
 reduce_lr = ReduceLROnPlateau(monitor='val_loss',verbose=1, factor=0.5,
                               patience=50, min_lr=0.000001)
@@ -138,9 +136,10 @@ def variable_custom_loss(y_true, y_pred):
     mse_loss = ssim_beta*mse_loss
     return ssim_loss + mse_loss
 
-alpha = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
-beta = [0.9,0.8,0.7,0.6,0.5,0.4,0.3,0.2,0.1]
-
+alpha = [0.1,0.2,0.3,0.4,0.5]
+beta = [0.9,0.8,0.7,0.6,0.5]
+mse_losses = []
+ssim_losses = []
 
 forward_model = Sequential()
 forward_model.add(Input(shape=(30,32,32,1),batch_size = 32))
@@ -160,7 +159,7 @@ forward_model.load_weights('../data/model_stuff/forward_weights_4_12.h5')
 binary_weights = forward_model.layers[0].get_weights()
 inverse_weights = forward_model.layers[5].get_weights()
 
-for i in range(9):
+for i in range(4):
     ssim_alpha = alpha[i]
     ssim_beta = beta[i]
     inner_mse_losses=[]
@@ -179,9 +178,9 @@ for i in range(9):
                                H=H, kernel_lr_multiplier=kernel_lr_multiplier,
                                padding='same', use_bias=use_bias, name='bin_conv_1',trainable=False))(inputs)
         resh1 = Reshape((30,32,32))(bin_conv1)
-        s = Lambda(streak, output_shape = streak_output_shape)(resh1)
-        i = Lambda(integrate_ims, output_shape = integrate_ims_output_shape) (s)
-        f = Flatten()(i)
+        streak1 = Lambda(streak, output_shape = streak_output_shape)(resh1)
+        integrate1 = Lambda(integrate_ims, output_shape = integrate_ims_output_shape) (streak1)
+        f = Flatten()(integrate1)
         dense1 = Dense(30720, activation = 'relu',trainable=False)(f)
         resh2 = Reshape((30,32,32,1))(dense1)
         c1 = TimeDistributed(Conv2D(1, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')) (resh2)
@@ -235,12 +234,12 @@ for i in range(9):
 
         CUPNET = Model(inputs = [inputs], outputs = [outputs])
             
-        CUPNET.compile(optimizer = Nadam(), loss = custom_loss, metrics = ['mean_squared_error'])
+        CUPNET.compile(optimizer = Nadam(), loss = variable_custom_loss, metrics = [mse_loss,ssim_loss])
         CUPNET.layers[1].set_weights(binary_weights)
         CUPNET.layers[6].set_weights(inverse_weights)
 
         CUPNET_history = CUPNET.fit(MX_train, My_train,
-              batch_size = 32,epochs= 150,
+              batch_size = 32,epochs= 100,
               verbose=2,validation_data=(MX_test,My_test),callbacks=[reduce_lr])
 
         CUPNET.save_weights(f'../data/model_stuff/cupnet_weights/{ssim_alpha}_cupnet_4_12.h5')
@@ -256,11 +255,12 @@ for i in range(9):
     mse_losses.append(inner_mse_losses)
     ssim_losses.append(inner_ssim_losses)
 
-    with open("training_logs.txt",'a') as file:
+    with open("cupnet_training_logs.txt",'a') as file:
         #msg = "[ssim,mse]: " + "["+str(alpha[i])+","+str(beta[i])+"]"+ " MSE LOSS: " + str(mse_losses[i]) + " +/- " + str(mse_sd[i]) + " SSIM LOSS: " + str(ssim_losses[i]) + " +/- " + str(ssim_sd[i]) + "\n"
-        msg = "[ssim,mse]: " + "["+str(alpha[i])+","+str(beta[i])+"]"+ " MSE LOSS: " + str(np.mean(inner_mse_losses)) + " +/- " + str(np.std(inner_mse_losses)) + " SSIM LOSS: " + str(np.mean(inner_ssim_losses)) + " +/- " + str(np.std(inner_ssim_losses)) + "\n"
+        #msg = "[ssim,mse]: " + "["+str(alpha[i])+","+str(beta[i])+"]"+ " MSE LOSS: " + str(np.mean(inner_mse_losses)) + " +/- " + str(np.std(inner_mse_losses)) + " SSIM LOSS: " + str(np.mean(inner_ssim_losses)) + " +/- " + str(np.std(inner_ssim_losses)) + "\n"
+        msg = f'[ssim,mse]: {alpha[i]} , {beta[i]} MSE LOSS: {np.mean(inner_mse_losses)} +/- {np.std(inner_mse_losses)} SSIM LOSS: {np.mean(inner_ssim_losses)} +/- {np.std(inner_ssim_losses)} \n'
         file.write(msg)
             
-with open("training_logs.txt",'a') as file:
+with open("cupnet_training_logs.txt",'a') as file:
     msg = "\n ALL HISTORY: \n" + "SSIM LOSSES: " + str(ssim_losses) + "\nMSE LOSSES: " + str(mse_losses)
     file.write(msg)
