@@ -104,7 +104,7 @@ def split_all_vids(vid_dictionary,movie=False,front_clip=0,end_clip=0):
     for youtube_vid in youtube_vids: 
         print("Splitting : " +str(youtube_vid))
         
-        num_mini_vids = vid_dictionary[youtube_vid] // 300
+        num_mini_vids = vid_dictionary[youtube_vid] // 600
         
         
         t_arr, num_videos = parse_video(youtube_vid,num_mini_vids)
@@ -155,7 +155,7 @@ def parse_video(video,num_vids):
         fc += 1
         image = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        if fc % 10 == 0:
+        if fc % 20 == 0:
             mini_vid[frames-1] = gray
             frames += 1
         if frames == 30:
@@ -201,13 +201,13 @@ PARAMS:
 RETURN: 
     total: integer of total mini videos that can be made
 
-CHANGE: // 300 rather than 30 to account for only keeping every tenth frame
+CHANGE: //  rather than 30 to account for only keeping every tenth frame
 """    
 def calc_total_mini_vids(vid_dictionary):
     frames = vid_dictionary.values()
     total = 0
     for frame in frames:
-        total += frame // 300
+        total += frame // 600
     print("total vids = " + str(total))
     return total 
 
