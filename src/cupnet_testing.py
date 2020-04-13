@@ -136,8 +136,8 @@ def variable_custom_loss(y_true, y_pred):
     mse_loss = ssim_beta*mse_loss
     return ssim_loss + mse_loss
 
-alpha = [0.1,0.2,0.3,0.4,0.5]
-beta = [0.9,0.8,0.7,0.6,0.5]
+alpha = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
+beta = [0.9,0.8,0.7,0.6,0.5,0.4,0.3,0.2,0.1]
 mse_losses = []
 ssim_losses = []
 
@@ -159,7 +159,7 @@ forward_model.load_weights('../data/model_stuff/forward_weights_4_12.h5')
 binary_weights = forward_model.layers[0].get_weights()
 inverse_weights = forward_model.layers[5].get_weights()
 
-for i in range(4):
+for i in range(5,9):
     ssim_alpha = alpha[i]
     ssim_beta = beta[i]
     inner_mse_losses=[]
