@@ -159,7 +159,7 @@ forward_model.load_weights('../data/model_stuff/forward_weights_4_12.h5')
 binary_weights = forward_model.layers[0].get_weights()
 inverse_weights = forward_model.layers[5].get_weights()
 
-for i in range(5,9):
+for i in range(9):
     ssim_alpha = alpha[i]
     ssim_beta = beta[i]
     inner_mse_losses=[]
@@ -242,7 +242,7 @@ for i in range(5,9):
               batch_size = 32,epochs= 100,
               verbose=2,validation_data=(MX_test,My_test),callbacks=[reduce_lr])
 
-        CUPNET.save_weights(f'../data/model_stuff/cupnet_weights/{j}_{ssim_alpha}_cupnet_4_12.h5')
+        CUPNET.save_weights(f'../data/model_stuff/cupnet_weights/{j}_{ssim_alpha}_cupnet_4_13.h5')
         evals = CUPNET.evaluate(MX_test,My_test)
         inner_mse_losses.append(evals[1])
         inner_ssim_losses.append(evals[2])
